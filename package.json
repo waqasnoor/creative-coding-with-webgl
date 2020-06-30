@@ -1,11 +1,15 @@
 {
-  "name": "creative-coding-webgl",
+  "name": "genart",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "sketch.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "canvas-sketch": "^0.7.3"
+  }
 }
