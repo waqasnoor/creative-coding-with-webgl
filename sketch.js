@@ -6,16 +6,22 @@ const settings = {
 
 const sketch = () => {
   return ({ context, width, height }) => {
-    context.fillStyle = "orange";
-    context.fillRect(0, 0, width, height);
+    context.fillStyle = "blue";
 
-    context.beginPath();
-    context.arc(width / 2, height / 2, 200, 0, 2 * Math.PI, false);
-    context.fillStyle = "red";
-    context.fill();
-    context.lineWidth = "20";
-    context.strokeStyle = "blue";
-    context.stroke();
+    context.fillRect(0, 0, width, height);
+    for (let i = 1; i <= 13; i++) {
+      const startPositionX = i * 150;
+      for (let j = 1; j <= 13; j++) {
+        context.beginPath();
+        const startPositionY = j * 150;
+        context.arc(startPositionX, startPositionY, 50, 0, 2 * Math.PI, false);
+        context.fillStyle = "white";
+        context.fill();
+        context.lineWidth = "10";
+        context.strokeStyle = "black";
+        context.stroke();
+      }
+    }
   };
 };
 
