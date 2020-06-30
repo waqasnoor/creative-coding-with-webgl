@@ -7,9 +7,10 @@ const settings = {
 
 const sketch = () => {
   return ({ context, width, height }) => {
-    context.fillStyle = "blue";
-
-    const count = 5;
+    context.fillStyle = "#F2F2F2";
+    context.strokeStyle = "#CCC";
+    context.stroke();
+    const count = 50;
 
     context.fillRect(0, 0, width, height);
     const createGrid = () => {
@@ -23,19 +24,25 @@ const sketch = () => {
       }
       return points;
     };
-    const margin = 200;
-    const points = createGrid();
+    const margin = 50;
+    const colors = ["#49A669", "#BF544B"];
+
+    const points = createGrid().filter(() => Math.random() > 0.5);
     points.forEach(([u, v]) => {
-      const radius = 150;
+      const radius = 15;
       const x = lerp(margin, width - margin, u);
       const y = lerp(margin, height - margin, v);
 
+      const color =
+        colors[Math.round(lerp(0, colors.length - 1, Math.random()))];
+
+      console.log(Math.random());
       context.beginPath();
       context.arc(x, y, radius, 0, 2 * Math.PI, false);
-      context.fillStyle = "white";
+      context.fillStyle = color;
       context.fill();
       context.lineWidth = "10";
-      context.strokeStyle = "black";
+      context.strokeStyle = color;
       context.stroke();
     });
 
