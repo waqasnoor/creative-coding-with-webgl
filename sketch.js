@@ -69,6 +69,7 @@ const sketch = () => {
       const [u, v] = position;
       const x = lerp(margin, width - margin, u);
       const y = lerp(margin, height - margin, v);
+
       context.save();
       context.translate(x, y);
       context.rotate(rotation);
