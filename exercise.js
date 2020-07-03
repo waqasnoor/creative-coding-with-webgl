@@ -3,104 +3,85 @@ const random = require("canvas-sketch-util/random");
 const palletes = require("nice-color-palettes");
 const { lerp } = require("canvas-sketch-util/math");
 
-const pallete = random.pick(palletes);
-const background = random.pick(palletes)[0];
+const count = random.rangeFloor(2, 3);
+
+const pallete = random.shuffle(random.pick(palletes)).slice(0, count);
+// const background = random.pick(palletes)[0];
+const background = "#fff";
 
 random.setSeed(random.getRandomSeed());
 const settings = {
   prefix: random.getRandomSeed(),
-  dimensions: [2048, 2048],
+  dimensions: [1024, 1024],
 };
-const margin = 200;
+const margin = 30;
 const sketch = () => {
   return ({ context, width, height }) => {
-    context.fillStyle = "#fff";
+    context.fillStyle = background;
     context.fillRect(0, 0, width, height);
 
     const createGrid = () => {
-      const count = 30;
+      const count = 7;
       const points = [];
       for (let x = 1; x < count; x++) {
         for (let y = 1; y < count; y++) {
-          const u = x / count;
-          const v = y / count;
+          const u = x / (count - 1);
+          const v = y / (count - 1);
           points.push({ position: [u, v] });
         }
       }
       return points;
     };
     let points = createGrid();
-    points = points.filter(() => Math.random() > 0.5);
+
     const getXY = ([u, v]) => {
       const x = lerp(margin, width - margin, u);
       const y = lerp(margin, height - margin, v);
       return [x, y];
     };
-    const paintRec = (p1, p2, p3, p4) => {
+    const paintRec = (p1, p3) => {
       context.beginPath();
+
+      const r1 = random.rangeFloor(p1.position[1], p1.position[0]);
+      const r2 = random.rangeFloor(p1.position[1], p3.position[0]);
+      const p2 = { position: [r1, p1.position[1]] };
+      const p4 = { position: [r2, p3.position[1]] };
+
+      // ________________________________________
+      // |
+      // |
+      // |
+      // --------------------------------------------
+
+      console.log({ p1, p2, p3, p4 });
+
       context.moveTo(...getXY(p1.position));
-
       context.lineTo(...getXY(p2.position));
-
       context.lineTo(...getXY(p3.position));
       context.lineTo(...getXY(p4.position));
+      // const p3 = {
+      //   position: getXY([random.value(), p2.position[1]]),
+      // };
+      // const p4 = {
+      //   position: getXY([random.value(), random.value()]),
+      // };
 
-      context.fillStyle = random.pick(pallete);
+      // context.lineTo(...getXY(p2.position));
+      context.lineWidth = 40;
+      context.strokeStyle = background;
+      context.stroke();
+
+      context.fillStyle = `${random.pick(pallete)}`;
       context.fill();
-    };
-
-    const paintCircle = ({ position }) => {
-      const radius = Math.abs(random.noise2D(...position)) * 0.1 * width;
-      const [x, y] = getXY(position);
-      let startAngle = random.rangeFloor(0, Math.PI * 2);
-      let endAngle = random.rangeFloor(0, Math.PI * 2);
-      if (startAngle > endAngle) {
-        const temp = startAngle;
-        startAngle = endAngle;
-        endAngle = temp;
-      }
-      context.beginPath();
-      context.arc(x, y, radius, startAngle, endAngle, false);
-      context.fillStyle = random.pick(pallete);
-      context.fill();
-    };
-
-    const paintCharacter = ({ position }) => {
-      const [x, y] = getXY(position);
-
-      const radius = random.noise2D(...position) * 0.1;
-      const rotation = random.noise2D(...position);
-
-      context.save();
-      context.translate(x, y);
-      context.rotate(rotation);
-      const character = "=";
-      context.fillStyle = random.pick(pallete);
-      context.font = `${radius * width}px "Helvetica"`;
-      context.fillText(character, 0, 0);
-      context.restore();
     };
 
     points = random.shuffle(points);
     function generateShapes() {
-      const type = random.pick(["circle", "polygon", "character"]);
-      if (points.length >= 4 && type === "polygon") {
+      if (points.length >= 4) {
         const p1 = points.pop();
         const p2 = points.pop();
-        const p3 = points.pop();
-        const p4 = points.pop();
-        paintRec(p1, p2, p3, p4);
-      }
-      if (points.length && type === "circle") {
-        const p = points.pop();
-        paintCircle(p);
-      }
-      if (points.length && type === "character") {
-        const p = points.pop();
-        paintCharacter(p);
-      }
+        paintRec(p1, p2);
 
-      if (points.length) {
         generateShapes();
       }
     }

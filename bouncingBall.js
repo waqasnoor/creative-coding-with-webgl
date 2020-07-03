@@ -15,7 +15,7 @@ const sketch = () => {
     context.fillRect(0, 0, width, height);
     const t = Math.sin(time);
 
-    const cx = width / 2;
+    const cx = time / 10;
     const cy = lerp(margin, height - margin, Math.abs(t));
     const DrawBall = () => {
       context.beginPath();
