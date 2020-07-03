@@ -3,6 +3,8 @@ global.THREE = require("three");
 const random = require("canvas-sketch-util/random");
 const palletes = require("nice-color-palettes");
 
+const BezierEasing = require("bezier-easing");
+
 const count = random.rangeFloor(3, 6);
 const pallete = random.shuffle(random.pick(palletes)).slice(0, count);
 
@@ -17,6 +19,9 @@ const settings = {
   // Get a WebGL canvas rather than 2D
   context: "webgl",
   attributes: { antialias: true },
+  dimentions: [512, 512],
+  fps: 24,
+  duration: 4,
 };
 
 const sketch = ({ context }) => {
@@ -35,11 +40,13 @@ const sketch = ({ context }) => {
   const scene = new THREE.Scene();
   const geometry = new THREE.BoxGeometry(1, 1, 1);
 
+  const sphereGeomatery = new THREE.SphereGeometry(1, 32, 32);
+
   // Setup a geometry
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < 10; i++) {
     // Setup a material
     const material = new THREE.MeshStandardMaterial({
-      color: random.pick(pallete),
+      color: `${random.pick(pallete)}`,
       roughness: 0.75,
       flatShading: true,
     });
@@ -56,18 +63,20 @@ const sketch = ({ context }) => {
       random.range(-1, 1),
       random.range(-1, 1)
     );
-    mesh.scale.multiplyScalar(0.25);
+    mesh.scale.multiplyScalar(0.5);
     scene.add(mesh);
   }
 
-  const light2 = new THREE.AmbientLight("hsl(0, 0%, 40%)");
+  const light2 = new THREE.AmbientLight("hsl(0, 0%, 450%)");
   scene.add(light2);
 
-  const light = new THREE.DirectionalLight("white", 1);
+  const light = new THREE.DirectionalLight("white", 0.5);
   light.position.set(0, 0, 4);
   scene.add(light);
+
   // draw each frame
 
+  const BazierFn = BezierEasing(0.46, 0.08, 0.89, 1.95);
   return {
     // Handle resize events here
     resize({ pixelRatio, viewportWidth, viewportHeight }) {
@@ -96,9 +105,18 @@ const sketch = ({ context }) => {
       // Update the camera
       camera.updateProjectionMatrix();
     },
-    // Update & render your scene here
-    render({ time }) {
+    // Update & render your scene here\\\\
+
+    render({ time, playhead }) {
       // controls.update();
+      // const speed = 2;
+
+      const rotation = BazierFn(Math.sin(playhead * 2 * Math.PI));
+      // scene.rotation.y = rotation;
+      scene.rotation.x = rotation;
+      // scene.rotation.z = rotation;
+      // camera.rotateX(rotation);
+      // scene.light.rotation.x = rotation;
       renderer.render(scene, camera);
     },
     // Dispose of events & renderer for cleaner hot-reloading

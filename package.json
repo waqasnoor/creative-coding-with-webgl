@@ -10,8 +10,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bezier-easing": "^2.1.0",
     "canvas-sketch": "^0.7.3",
     "canvas-sketch-util": "^1.10.0",
+    "easing": "^1.2.1",
     "nice-color-palettes": "^3.0.0",
     "three": "^0.118.3"
   }
