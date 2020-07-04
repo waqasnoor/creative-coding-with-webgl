@@ -17,7 +17,9 @@ const frag = glsl(/* glsl */ `
   varying vec2 vUv;
 
   void main () {
-   gl_FragColor = vec4(sin(time),cos(time*0.4),tan(time),1.0);
+
+
+   gl_FragColor = vec4(cos(time*0.2),cos(time*0.4),cos(time),1.0);
   }
 `);
 
