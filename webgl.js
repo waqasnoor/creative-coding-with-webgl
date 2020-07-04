@@ -12,6 +12,7 @@ const pallete = random.shuffle(random.pick(palletes)).slice(0, count);
 require("three/examples/js/controls/OrbitControls");
 
 const canvasSketch = require("canvas-sketch");
+const { range } = require("canvas-sketch-util/random");
 
 const settings = {
   // Make the loop animated
@@ -19,9 +20,10 @@ const settings = {
   // Get a WebGL canvas rather than 2D
   context: "webgl",
   attributes: { antialias: true },
-  dimentions: [512, 512],
+  dimentions: [256, 256],
   fps: 24,
   duration: 4,
+  wireframe: true,
 };
 
 const sketch = ({ context }) => {
@@ -38,17 +40,39 @@ const sketch = ({ context }) => {
 
   // Setup your scene
   const scene = new THREE.Scene();
+  // const geometry = new THREE.SphereGeometry(5, 32, 32);
   const geometry = new THREE.BoxGeometry(1, 1, 1);
 
-  const sphereGeomatery = new THREE.SphereGeometry(1, 32, 32);
+  const fragmentShader = /*glsl */ `
+  varying vec2 vUv;
+  uniform vec3 color;
+  void main(){
+    gl_FragColor = vec4(vec3(color * vUv.x),1.0);
+    }
+  `;
+  const vertexShader = /*glsl */ `
+  uniform float playhead;
+  varying vec2 vUv;
+  void main(){
+    vUv = uv;
+    vec3 pos = position.xyz ;
+    gl_Position = projectionMatrix * modelViewMatrix  * vec4(pos,1.0); 
+  }
+  `;
 
+  const meshes = [];
   // Setup a geometry
   for (let i = 0; i < 10; i++) {
     // Setup a material
-    const material = new THREE.MeshStandardMaterial({
-      color: `${random.pick(pallete)}`,
-      roughness: 0.75,
-      flatShading: true,
+    const material = new THREE.ShaderMaterial({
+      fragmentShader,
+      vertexShader,
+      uniforms: {
+        color: { value: new THREE.Color(random.pick(pallete)) },
+        playhead: { value: 0 },
+      },
+      // roughness: 0.75,
+      // flatShading: true,
     });
 
     // Setup a mesh with geometry + material
@@ -58,6 +82,10 @@ const sketch = ({ context }) => {
       random.range(-1, 1),
       random.range(-1, 1)
     );
+    mesh.speed = range(1, 3);
+    mesh.growthSpeed = range(1, 3);
+    mesh.maxGrowth = range(0.3, 1);
+    mesh.growthDir = 1;
     mesh.scale.set(
       random.range(-1, 1),
       random.range(-1, 1),
@@ -65,14 +93,15 @@ const sketch = ({ context }) => {
     );
     mesh.scale.multiplyScalar(0.5);
     scene.add(mesh);
+    meshes.push(mesh);
   }
 
   const light2 = new THREE.AmbientLight("hsl(0, 0%, 450%)");
   scene.add(light2);
 
-  const light = new THREE.DirectionalLight("white", 0.5);
-  light.position.set(0, 0, 4);
-  scene.add(light);
+  // const light = new THREE.DirectionalLight("white", 0.5);
+  // light.position.set(0, 0, 4);
+  // scene.add(light);
 
   // draw each frame
 
@@ -107,11 +136,32 @@ const sketch = ({ context }) => {
     },
     // Update & render your scene here\\\\
 
-    render({ time, playhead }) {
+    render({ playhead }) {
       // controls.update();
       // const speed = 2;
 
       const rotation = BazierFn(Math.sin(playhead * 2 * Math.PI));
+
+      meshes.forEach((mesh) => {
+        mesh.material.uniforms.playhead.value = rotation;
+        const { position, scale } = mesh;
+        // if (position.y >= 3) {
+        //   position.y = -3;
+        // }
+        // if (scale.y >= mesh.maxGrowth || scale.y <= 0.1) {
+        //   mesh.growthDir *= -1;
+        // }
+        // mesh.position.set(
+        //   position.x,
+        //   position.y + mesh.speed * 0.045,
+        //   position.z
+        // );
+        // mesh.scale.set(
+        //   scale.x,
+        //   scale.y + Math.abs(mesh.growthSpeed * 0.01) * mesh.growthDir,
+        //   scale.z
+        // );
+      });
       // scene.rotation.y = rotation;
       scene.rotation.x = rotation;
       // scene.rotation.z = rotation;

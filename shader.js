@@ -11,15 +11,31 @@ const settings = {
 // Your glsl code
 
 const frag = glsl(/* glsl */ `
+
+
+
   precision highp float;
 
   uniform float time;
+  uniform float aspect;
   varying vec2 vUv;
 
+  #pragma glslify: noise = require(glsl-noise/simplex/3d) 
+  #pragma glslify: hsl2rgb = require(glsl-hsl2rgb)
+
   void main () {
+    
+    vec2 center = vUv - 0.5;
+    center.x *= aspect;
+    float dist = length(center);
+    float alpha = smoothstep(0.32 ,0.3,dist);
 
 
-   gl_FragColor = vec4(cos(time*0.2),cos(time*0.4),cos(time),1.0);
+    float n = noise(vec3(center * 1.5,time));
+    
+    vec3 color = hsl2rgb(0.6 + n * 0.2 ,0.5,0.5);
+    
+    gl_FragColor = vec4(color,alpha);
   }
 `);
 
@@ -35,7 +51,9 @@ const sketch = ({ gl }) => {
     uniforms: {
       // Expose props from canvas-sketch
       time: ({ time }) => time,
+      aspect: ({ width, height }) => width / height,
     },
+    clearColor: "white",
   });
 };
 
