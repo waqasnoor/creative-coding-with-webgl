@@ -17,6 +17,6 @@
     "glsl-hsl2rgb": "^1.1.0",
     "glsl-noise": "0.0.0",
     "nice-color-palettes": "^3.0.0",
-    "three": "^0.118.3"
+    "three": "^0.125.0"
   }
 }
